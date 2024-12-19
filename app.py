@@ -3,6 +3,7 @@ import os
 import google.generativeai as genai
 
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api._errors import TranscriptsDisabled
 
 genai.configure(api_key='AIzaSyDhSrISiCxmZ2zvk0vPJnAerKyCRmXv8zA')
 
@@ -14,9 +15,9 @@ within 250 words. Please provide the summary of the text given here:  """
 ## getting the transcript data from yt videos
 def extract_transcript_details(youtube_video_url):
     try:
-        video_id=youtube_video_url.split("=")[1]
+        video_id = youtube_video_url.split("=")[1]
         
-        transcript_text=YouTubeTranscriptApi.get_transcript(video_id)
+        transcript_text = YouTubeTranscriptApi.get_transcript(video_id)
 
         transcript = ""
         for i in transcript_text:
@@ -24,8 +25,10 @@ def extract_transcript_details(youtube_video_url):
 
         return transcript
 
+    except TranscriptsDisabled:
+        return "Transcripts are disabled for this video. Please try another video."
     except Exception as e:
-        raise e
+        return f"An error occurred: {str(e)}"
     
 ## getting the summary based on Prompt from Google Gemini Pro
 def generate_gemini_content(transcript_text,prompt):
